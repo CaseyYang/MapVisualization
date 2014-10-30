@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "地图匹配", "地图匹配", "{980610CF-EABE-4A03-B06E-B9FC73B78DA7}"
+	ProjectSection(SolutionItems) = preProject
+		地图匹配\MapMatching.js = 地图匹配\MapMatching.js
+		地图匹配\MapMatchingData.js = 地图匹配\MapMatchingData.js
+		地图匹配\MapMatchingData_noshortestpath.js = 地图匹配\MapMatchingData_noshortestpath.js
+		地图匹配\地图匹配.htm = 地图匹配\地图匹配.htm
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "含最短路地图匹配", "含最短路地图匹配", "{E3303F61-1110-41B4-A059-DEC868E9D608}"
+	ProjectSection(SolutionItems) = preProject
+		含最短路地图匹配\MapMatching.js = 含最短路地图匹配\MapMatching.js
+		含最短路地图匹配\MapMatchingData_shortestpath.js = 含最短路地图匹配\MapMatchingData_shortestpath.js
+		含最短路地图匹配\地图匹配.htm = 含最短路地图匹配\地图匹配.htm
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "理想轨迹", "理想轨迹", "{8DD5BE43-43D5-4E64-B0C1-C1912BBF7AA7}"
+	ProjectSection(SolutionItems) = preProject
+		理想轨迹\IdealRoute.js = 理想轨迹\IdealRoute.js
+		理想轨迹\IdealRouteData.js = 理想轨迹\IdealRouteData.js
+		理想轨迹\TrajPointData.js = 理想轨迹\TrajPointData.js
+		理想轨迹\理想轨迹路段.htm = 理想轨迹\理想轨迹路段.htm
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "路网结构及轨迹模式挖掘效果展示", "路网结构及轨迹模式挖掘效果展示", "{F2B3A675-667A-4024-8FF7-87251A39E7E2}"
+	ProjectSection(SolutionItems) = preProject
+		路网结构及轨迹模式挖掘效果展示\DBSCANResult.js = 路网结构及轨迹模式挖掘效果展示\DBSCANResult.js
+		路网结构及轨迹模式挖掘效果展示\DistinctEdges.js = 路网结构及轨迹模式挖掘效果展示\DistinctEdges.js
+		路网结构及轨迹模式挖掘效果展示\RouteNetwork.js = 路网结构及轨迹模式挖掘效果展示\RouteNetwork.js
+		路网结构及轨迹模式挖掘效果展示\RouteNetworkData.js = 路网结构及轨迹模式挖掘效果展示\RouteNetworkData.js
+		路网结构及轨迹模式挖掘效果展示\路网结构及轨迹模式挖掘效果展示.htm = 路网结构及轨迹模式挖掘效果展示\路网结构及轨迹模式挖掘效果展示.htm
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "网格信息展示", "网格信息展示", "{84E21F17-5D2B-45B1-A965-718D09136F41}"
+	ProjectSection(SolutionItems) = preProject
+		网格信息展示\Grid.js = 网格信息展示\Grid.js
+		网格信息展示\MatchedRatePerGrid.js = 网格信息展示\MatchedRatePerGrid.js
+		网格信息展示\MatchedRatePerGrid_2000.js = 网格信息展示\MatchedRatePerGrid_2000.js
+		网格信息展示\网格信息展示.htm = 网格信息展示\网格信息展示.htm
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "原始轨迹", "原始轨迹", "{0EB8D19C-204D-4FF8-BFBF-7900B2D67F96}"
+	ProjectSection(SolutionItems) = preProject
+		原始轨迹\RawTraj.js = 原始轨迹\RawTraj.js
+		原始轨迹\RawTrajData.js = 原始轨迹\RawTrajData.js
+		原始轨迹\原始轨迹.htm = 原始轨迹\原始轨迹.htm
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BA19B885-7D18-4506-837A-024F0DE6FD78}"
+	ProjectSection(SolutionItems) = preProject
+		logo_fd.jpg = logo_fd.jpg
+		logo_mdm.PNG = logo_mdm.PNG
+		Map.js = Map.js
+		smallnode.png = smallnode.png
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
