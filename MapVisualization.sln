@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "地图匹配", "地图匹配", "{980610CF-EABE-4A03-B06E-B9FC73B78DA7}"
 	ProjectSection(SolutionItems) = preProject
@@ -56,6 +56,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		logo_mdm.PNG = logo_mdm.PNG
 		Map.js = Map.js
 		smallnode.png = smallnode.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "新加坡POI可视化", "新加坡POI可视化", "{F7F23D1E-0B86-4C47-AE8F-85D9B0D3042D}"
+	ProjectSection(SolutionItems) = preProject
+		新加坡POI可视化\POI.js = 新加坡POI可视化\POI.js
+		新加坡POI可视化\poi_data.js = 新加坡POI可视化\poi_data.js
+		新加坡POI可视化\新加坡POI可视化.htm = 新加坡POI可视化\新加坡POI可视化.htm
 	EndProjectSection
 EndProject
 Global
