@@ -1,5 +1,12 @@
 var edges = []; //路网中路段集合：每个元素有如下几个字段：polylines（路段形状）；edgeId（路段ID）
 var trajPatterns = []; //轨迹模式挖掘结果集合：每个元素有如下几个字段：polylines（路段形状）；edgeId（路段ID）；rate（热度）；center（中心点位置）
+var localSemanticTypeColor = {};//保存路段颜色（同一种语义类型的路段拥有相同颜色）
+
+//随机选择颜色
+function GetRandomColor() {
+    return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).slice(-6);
+    //return '#CE0000';
+}
 
 //读入路网数据集
 function ReadInEdges() {
@@ -12,11 +19,16 @@ function ReadInEdges() {
                 edge.polylines.push(new google.maps.LatLng(routeNetwork.edges[i].figures[j].y, routeNetwork.edges[i].figures[j].x));
             }
             edges.push(edge);
+            if (localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] == null) {
+                localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] = GetRandomColor();
+            }
+            edge.color = localSemanticTypeColor[routeNetwork.edges[i].localSemanticType];
         }
-        for (var indexOfTrajs = 0; indexOfTrajs < routeNetwork.trajs.length; indexOfTrajs++) {
-            //TODO：读入trajs部分
-            new google.maps.LatLng(routeNetwork.trajPoints[i].y, routeNetwork.trajPoints[i].x);
-        }
+        //TODO：读入trajs部分
+        //for (var indexOfTrajs = 0; indexOfTrajs < routeNetwork.trajs.length; indexOfTrajs++) {
+            
+        //    new google.maps.LatLng(routeNetwork.trajPoints[i].y, routeNetwork.trajPoints[i].x);
+        //}
     }
 }
 
@@ -50,10 +62,10 @@ function ShowRouteNetwork() {
             edges[i].mapPolyline = new google.maps.Polyline({
                 path: edges[i].polylines,
                 strokeWeight: 4,
-                strokeColor: GetColor(),
+                strokeColor: edges[i].color,
                 map: map
             });
-            AddRouteInfoWindow(i);
+            //AddRouteInfoWindow(i);
         }
     }
     else {
@@ -143,12 +155,6 @@ function ClearTrajPatternsPolylines() {
         trajPatterns[i].mapPolyline.setMap(null);
         trajPatterns[i].marker.setMap(null);
     }
-}
-
-//随机选择颜色
-function GetColor() {
-    return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).slice(-6);
-    //return '#CE0000';
 }
 
 //查询指定Id的路段
