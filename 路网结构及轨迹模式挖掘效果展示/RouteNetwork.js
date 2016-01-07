@@ -1,11 +1,23 @@
 var edges = []; //路网中路段集合：每个元素有如下几个字段：polylines（路段形状）；edgeId（路段ID）
 var trajPatterns = []; //轨迹模式挖掘结果集合：每个元素有如下几个字段：polylines（路段形状）；edgeId（路段ID）；rate（热度）；center（中心点位置）
 var localSemanticTypeColor = {};//保存路段颜色（同一种语义类型的路段拥有相同颜色）
+var colorFlag = 1;
 
 //随机选择颜色
 function GetRandomColor() {
     return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).slice(-6);
     //return '#CE0000';
+}
+
+function GetCertainColor() {
+    if (colorFlag == 1) {
+        colorFlag = 2;
+        return '#3A5FCD';
+    }
+    else {
+        return '#FF0000';
+    }
+
 }
 
 //读入路网数据集
@@ -18,15 +30,22 @@ function ReadInEdges() {
             for (var j = 0; j < routeNetwork.edges[i].figures.length; j++) {
                 edge.polylines.push(new google.maps.LatLng(routeNetwork.edges[i].figures[j].y, routeNetwork.edges[i].figures[j].x));
             }
-            edges.push(edge);
+            //生成语义路网时，对于不同语义类型随机分配不同颜色
+            //if (localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] == null) {
+            //    localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] = GetRandomColor();
+            //}
+            //edge.color = localSemanticTypeColor[routeNetwork.edges[i].localSemanticType];
+
+            //生成特定粗粒度轨迹模式时，对两种语义类型分配红色和蓝色
             if (localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] == null) {
-                localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] = GetRandomColor();
+                localSemanticTypeColor[routeNetwork.edges[i].localSemanticType] = GetCertainColor();
             }
             edge.color = localSemanticTypeColor[routeNetwork.edges[i].localSemanticType];
+            edges.push(edge);
         }
         //TODO：读入trajs部分
         //for (var indexOfTrajs = 0; indexOfTrajs < routeNetwork.trajs.length; indexOfTrajs++) {
-            
+
         //    new google.maps.LatLng(routeNetwork.trajPoints[i].y, routeNetwork.trajPoints[i].x);
         //}
     }
