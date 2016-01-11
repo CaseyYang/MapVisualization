@@ -80,7 +80,7 @@ function ShowRouteNetwork() {
         for (var i = 0; i < edges.length; i++) {
             edges[i].mapPolyline = new google.maps.Polyline({
                 path: edges[i].polylines,
-                strokeWeight: 4,
+                strokeWeight: 5,
                 strokeColor: edges[i].color,
                 map: map
             });
