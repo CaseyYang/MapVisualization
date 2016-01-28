@@ -84,7 +84,7 @@ function ShowRouteNetwork() {
                 strokeColor: edges[i].color,
                 map: map
             });
-            //AddRouteInfoWindow(i);
+            AddRouteInfoWindow(i);
         }
     }
     else {
