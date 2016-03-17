@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Tracks Visualization Demo</title>
+    <style type="text/css">
+        #toptoolbar {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            padding: 2px;
+            background-color: lightgray;
+            width: 100%;
+            height: auto;
+            visibility: visible;
+            z-index: 10;
+        }
+    </style>
+    <script src="https://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script src="data.js" type="text/javascript"></script>
+    <script>
+        //pathTraj存储单条轨迹，每个元素包含相应的时间戳
+        //pathTraj2存储单条轨迹，每个元素即为符合Google API标准的google.maps.LatLng
+        //pathTraj3存储每个点集的几何中心点
+        //markerList存储所有生成的标记点，以便清空时使用，markerStart记录当前轨迹的一系列标记点的第一个点在数组中的位置。注意：按现有代码，只能删除当前最后一个轨迹
+        //pathList存储所有生成的轨迹线，以便清空时使用
+        //lastInfoWindow存储上一个气泡窗口
+        var filepath, map, fso, ts;
+        var pathTraj = [], pathTraj2 = [], pathTraj3 = [], markerList = [], pathList = [];
+        var trajIndex = 0, pathCount = 0, markerStart=0;
+        var lastInfoWindow;
+        var pathColor = ["#fff220", "#ed1c24", "#00a248", "#000000", "#b97a57", "#b5e61d", "##99d9ea"];
+
+        // 显示向Google查询的两点间行车路线代码
+        //var directionsDisplay = new google.maps.DirectionsRenderer();
+        //var directionsService = new google.maps.DirectionsService();
+        //var latlngStart = new google.maps.LatLng(data[0].y, data[0].x);//路线起点
+        //var latlngDestination = new google.maps.LatLng(data[data.length-1].y, data[data.length-1].x);//路线终点
+        //var requestRoute = {
+        //    origin: latlngStart,
+        //    destination: latlngDestination,
+        //    travelMode: google.maps.DirectionsTravelMode.DRIVING
+        //};
+        //directionsService.route(requestRoute, function (response, status) {
+        //    if (status == google.maps.DirectionsStatus.OK) {
+        //        directionsDisplay.setDirections(response);
+        //    }
+        //});
+
+        //页面加载初始化
+        function Initialize() {
+            geoCoder = new google.maps.Geocoder();
+            lastInfoWindow = new google.maps.InfoWindow();
+            geoCoder.geocode({
+                'address': document.getElementById("city").value
+            },
+            function (results, state) {
+                if (state = google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        var latlng = results[0].geometry.location;
+                        var myOptions = {
+                            zoom: 10,
+                            center: latlng,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        };
+                        map = new google.maps.Map((document.getElementById("map_canvas")), myOptions);
+                        //显示向Google查询的两点间行车路线代码
+                        //directionsDisplay.setMap(map);
+                    }
+                }
+                else {
+                    alert("错误代码：" + state);
+                }
+            });
+        }
+        //初始化变量
+        function ClearVars() {
+            pathTraj = [];
+            pathTraj2 = [];
+            pathTraj3 = [];
+            markerList = [];
+            pathList = [];
+            trajIndex = 0;
+            pathCount = 0;
+        }
+        //清除所有页面元素，包括标记点和轨迹
+        function ClearMarker() {
+            for (var i = 0; i < markerList.length; i++) {
+                markerList[i].setMap(null);
+            }
+            for (i = 0; i < pathList.length; i++) {
+                pathList[i].setMap(null);
+            }
+            ClearVars();
+        }
+        //清除前一条轨迹
+        function CLearFormerMarker() {
+            for (var i = markerStart; i < markerList.length; i++) {
+                markerList[i].setMap(null);
+            }
+            markerList.length = markerStart;
+            pathList[pathList.length - 1].setMap(null);
+            pathList.length = pathList.length - 1;
+            pathCount--;
+        }
+
+        //显示一个点
+        function ShowOnePoint() {
+            if (trajIndex == pathTraj.length) {
+                alert("已达到最后一个点！");
+                document.getElementById("onepoint").disabled = true;
+                document.getElementById("allpoint").disabled = true;
+            }
+            else {
+                var marker = new google.maps.Marker({
+                    position: pathTraj[trajIndex].gpspoint,
+                    map: map
+                    //icon: "icon.png"
+                });
+                if (trajIndex == 0) {
+                    markerStart = markerList.length;
+                }
+                markerList[markerList.length] = marker;
+                var infoWindow = new google.maps.InfoWindow({
+                    content: '时间: ' + pathTraj[trajIndex].timestamp
+                });
+                google.maps.event.addListener(marker, 'click', function () {
+                    lastInfoWindow.close();
+                    infoWindow.open(map, marker);
+                    lastInfoWindow = infoWindow;
+                });
+                trajIndex++;
+            }
+        }
+        //显示所有点
+        function ShowAllPoint() {
+            for (trajIndex = 0; trajIndex < pathTraj.length;) {
+                ShowOnePoint();
+            }
+            //document.getElementById("onepoint").disabled = true;
+            //document.getElementById("allpoint").disabled = true;
+        }
+        //显示一条轨迹
+        function ShowOneTraj() {
+            ShowAllPoint();
+            //显示两点间连线
+            var path = new google.maps.Polyline({
+                path: pathTraj2,//若要显示轨迹数组的一部分：pathTraj.slice(0,index)
+                strokeColor: document.getElementById("selectcolor").options[document.getElementById("selectcolor").selectedIndex].value,//或：pathColor[pathCount % 7]
+                strokeWeight: 3,
+                map: map
+            });
+            pathList[pathList.length] = path;
+            //显示两个点集间的连线
+            //var path = new google.maps.Polyline({
+            //    path: pathTraj3,
+            //    //连线颜色根据下拉框选择值而定
+            //    strokeColor: document.getElementById("selectcolor").options[document.getElementById("selectcolor").selectedIndex].value,
+            //    strokeWeight: 3,
+            //    map: map
+            //});
+        }
+        //显示所有轨迹
+        function ShowAllTraj() {
+            var i = pathCount;
+            for (; i < data.length; i++) {
+                ShowAllPoint();
+                var path = new google.maps.Polyline({
+                    path: pathTraj2,//若要显示轨迹数组的一部分：pathTraj.slice(0,index)
+                    strokeColor: pathColor[pathCount % 7],
+                    strokeWeight: 3,
+                    map: map
+                });
+                ReadIn();
+            }
+        }
+
+        //读入数据集
+        function ReadIn() {
+            pathTraj = [];
+            pathTraj2 = [];
+            pathTraj3 = [];
+            var i = 0;
+            var xAverage = 0;
+            var yAverage = 0;
+            if (pathCount < data.length) {
+                while (i < data[pathCount].length) {
+                    var x1 = data[pathCount][i].x;
+                    xAverage += x1;
+                    var y1 = data[pathCount][i].y;
+                    yAverage += y1;
+                    var t1 = data[pathCount][i].t;
+                    i++;
+                    pathTraj[pathTraj.length] = {
+                        gpspoint: new google.maps.LatLng(y1, x1),
+                        timestamp: t1
+                    };
+                    pathTraj2[pathTraj2.length] = new google.maps.LatLng(y1, x1);
+                }
+                xAverage = xAverage / data[pathCount].length;
+                yAverage = yAverage / data[pathCount].length;
+                pathTraj3[pathTraj3.length] = new google.maps.LatLng(yAverage, xAverage);
+                document.getElementById("onepoint").disabled = false;
+                document.getElementById("allpoint").disabled = false;
+                document.getElementById("onetraj").disabled = false;
+                document.getElementById("alltraj").disabled = false;
+                pathCount++;
+            }
+            else {
+                alert("已读取最后一组数据");
+            }
+        }
+    </script>
+</head>
+<body onload="Initialize()" style="height: 100%">
+    <div id="toptoolbar" class="toptoolbar">
+        输入轨迹所在城市：
+        <input type="text" name="city" id="city" value="San Franciso" />
+        <button id="importmap" onclick="Initialize()">导入地图</button>
+        <button id="clearAll" onclick="ClearMarker()">清除图中元素</button>
+        <button id="clearOneTraj" onclick="CLearFormerMarker()">清除前一条轨迹</button>
+        <br />
+        <button id="readdata" onclick="ReadIn()">读取数据</button>
+        <button id="onepoint" name="onepoint" onclick="ShowOnePoint()" disabled="disabled">逐个显示记录点</button>
+        <button id="allpoint" name="allpoint" onclick="ShowAllPoint()" disabled="disabled">显示所有记录点</button>
+        <button id="onetraj" name="onetraj" onclick="ShowOneTraj()" disabled="disabled">逐条显示轨迹</button>
+        <button id="alltraj" name="alltraj" onclick="ShowAllTraj()" disabled="disabled">显示所有轨迹</button>
+        <select id="selectcolor">
+            <option value="#ed1c24">红色</option>
+            <option value="#fff220">黄色</option>
+            <option value="#00a248">深绿色</option>
+            <option value="#99d9ea">浅蓝色</option>
+            <option value="#b5e61d">浅绿色</option>
+            <option value="#b97a57">褐色</option>
+            <option value="#000000">黑色</option>
+        </select>
+    </div>
+    <div id="map_canvas" style="width: auto; height: 120%"></div>
+</body>
+</html>

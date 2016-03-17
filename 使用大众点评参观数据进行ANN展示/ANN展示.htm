@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>ANN展示</title>
+    <style type="text/css">
+        #toolbar {
+            background-color: lightgray;
+            width: 21%;
+            height: 100%;
+            float: left;
+            visibility: visible;
+        }
+
+        #map_canvas {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            width: 79%;
+            height: 100%;
+        }
+
+        .classguide {
+            padding-bottom: 5px;
+            padding-top: 2px;
+            font-size: small;
+        }
+
+        .classdemoname {
+            padding-bottom: 5px;
+            padding-top: 2px;
+            font-size: larger;
+            font-family: 'Microsoft YaHei';
+            font-weight: 100;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false" type="text/javascript"></script>
+    <script src="ANN.js" type="text/javascript"></script>
+    <script>
+        //pathTraj存储单条轨迹，每个元素包含相应的时间戳
+        //pathTraj2存储单条轨迹，每个元素即为符合Google API标准的google.maps.LatLng
+        //pathTraj3存储每个点集的几何中心点
+        //markerList存储所有生成的标记点，以便清空时使用。注意：按现有代码，只能删除当前最后一个轨迹
+        //pathList存储所有生成的轨迹线，以便清空时使用
+        var map, currentCity;
+        var friends = [];
+
+        // 显示向Google查询的两点间行车路线代码
+        //var directionsDisplay = new google.maps.DirectionsRenderer();
+        //var directionsService = new google.maps.DirectionsService();
+        //var latlngStart = new google.maps.LatLng(data[0].y, data[0].x);//路线起点
+        //var latlngDestination = new google.maps.LatLng(data[data.length-1].y, data[data.length-1].x);//路线终点
+        //var requestRoute = {
+        //    origin: latlngStart,
+        //    destination: latlngDestination,
+        //    travelMode: google.maps.DirectionsTravelMode.DRIVING
+        //};
+        //directionsService.route(requestRoute, function (response, status) {
+        //    if (status == google.maps.DirectionsStatus.OK) {
+        //        directionsDisplay.setDirections(response);
+        //    }
+        //});
+
+        //页面加载初始化
+        function Initialize(city) {
+            //初始化地图
+            geoCoder = new google.maps.Geocoder();
+            geoCoder.geocode({
+                'address': city
+            },
+            function (results, state) {
+                if (state = google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        var latlng = results[0].geometry.location;
+                        var myOptions = {
+                            zoom: 10,
+                            center: latlng,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        };
+                        map = new google.maps.Map((document.getElementById("map_canvas")), myOptions);
+
+                        google.maps.event.addListener(map, 'click', function (e) {
+                            var position = e.latLng;
+                            friends.push(position);
+                            var marker = new google.maps.Marker({
+                                position: position,
+                                map: map
+                            });
+
+                            google.maps.event.addListener(marker, 'click', function () {
+                                var position = marker.getPosition();
+                                friends.pop(position);
+                                marker.setMap(null);
+                            });
+                        });
+                        //显示向Google查询的两点间行车路线代码
+                        //directionsDisplay.setMap(map);
+                    }
+                }
+                else {
+                    alert("错误代码：" + state);
+                }
+            });
+        }
+
+        //清除餐馆信息区域所有内容
+        function ClearRestaurantInfo() {
+            var parentDiv = document.getElementById("restaurantinfotable");
+            if (parentDiv.hasChildNodes()) {
+                parentDiv.removeChild(parentDiv.firstChild);
+            }
+        }
+
+        //ANN
+        function GetNearestRestaurant() {
+            var averageLongitude = 0, averageLatitude = 0;
+            for (var i = 0; i < friends.length; i++) {
+                averageLatitude += friends[i].lat();
+                averageLongitude += friends[i].lng();
+            }
+            averageLatitude = averageLatitude / friends.length;
+            averageLongitude = averageLongitude / friends.length;
+            var annResult = -1;
+            var shortestLength = 99999999;
+            for (i = 0; i < data.length; i++) {
+                var length = (data[i].Latitude - averageLatitude) * (data[i].Latitude - averageLatitude) + (data[i].Longitude - averageLongitude) * (data[i].Longitude - averageLongitude);
+                if (length < shortestLength) {
+                    shortestLength = length;
+                    annResult = i;
+                }
+            }
+            var target = new google.maps.LatLng(data[annResult].Latitude, data[annResult].Longitude);
+            var marker = new google.maps.Marker({
+                position: target,
+                map: map,
+                icon: "restaurant.jpg"
+            });
+            google.maps.event.addListener(marker, 'click', function () {
+                marker.setMap(null);
+                ClearRestaurantInfo();
+            });
+            //在特定div区域内返回的餐馆信息
+            var parentDiv = document.getElementById("restaurantinfotable");
+            ClearRestaurantInfo();
+            //餐馆名称
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "餐馆名称：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].Name;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //餐馆地址
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "地址：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].Address;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //餐馆电话
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "联系电话：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].Phone;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //人均消费
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "人均消费额：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].AverageCost + "元";
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //口味
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "口味：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].TasteRemark;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //环境
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "环境：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].EnvironmentRemark;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //服务
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "服务：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].ServiceRemark;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            //星级
+            var tr = document.createElement("tr");
+            var tdKey = document.createElement("td");
+            tdKey.setAttribute("style", "width:100px;vertical-align:top");
+            tdKey.innerHTML = "星级：";
+            var tdValue = document.createElement("td");
+            tdValue.innerHTML = data[annResult].Rank;
+            tr.appendChild(tdKey);
+            tr.appendChild(tdValue);
+            parentDiv.appendChild(tr);
+            map.panTo(target);
+        }
+    </script>
+</head>
+<body onload="Initialize('Shanghai')" style="height: 100%; margin: 0px">
+    <div id="toolbar">
+        <div style="padding-bottom: 5px">
+            <table>
+                <tr>
+                    <td>
+                        <img src="../logo_fd.jpg" alt="复旦logo" height="90px" width="90px" /></td>
+                    <td>
+                        <img src="../logo_mdm.PNG" alt="实验室logo" height="90px" width="90px" /></td>
+                </tr>
+            </table>
+            <div class="classdemoname">
+                ANN查询演示
+            </div>
+            使用步骤：
+        </div>
+        <div class="classguide">
+            一、在地图上点击确定参与计算的好友位置<br />
+            二、点击按钮计算距离所有好友最近的餐馆
+        </div>
+        <button id="GetNearestRestaurant" onclick="GetNearestRestaurant()">查询</button>
+        <button id="ClearAll" onclick="ClearAll()">清空</button>
+        <div id="restaurantinfo">
+            查询结果：
+            <table id="restaurantinfotable"></table>
+        </div>
+    </div>
+    <div id="map_canvas" style="float: right"></div>
+</body>
+</html>
